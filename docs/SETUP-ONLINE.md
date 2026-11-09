@@ -3,12 +3,12 @@
 **About 20 minutes. Everything happens in your web browser. No coding, no command line.**
 
 When you're done you'll have:
-- a website like `https://our-family-k7q2m.vercel.app` that anyone with the link can look at, and
-- passcodes for the relatives you choose, so they can add and change people from any phone or computer.
+- a private website like `https://our-family-k7q2m.vercel.app` that only opens for people who know your **family password**, and
+- **editor passcodes** for the relatives you choose, so they can add and change people from any phone or computer.
 
 It's free: GitHub (stores the website code), Vercel (runs the website, on its free "Hobby" plan for personal use) and Neon (a free private database for your family's information).
 
-> 🔒 **Privacy in one sentence:** the *code* lives on GitHub (public), but your *family* lives only in your private database. **Never type real family members into the files on GitHub.** Add them on your website.
+> 🔒 **Privacy in one sentence:** the *code* lives on GitHub (public), but your *family* lives only in your private database, behind your family password. **Never type real family members, or any password, into the files on GitHub.**
 
 ---
 
@@ -34,7 +34,7 @@ You now have your own copy at `github.com/<your-name>/family-tree`. It stays lin
 4. **Framework Preset:** choose **Other**. Leave everything else as it is.
 5. Click **Deploy** and wait for the confetti 🎉.
 
-The site isn't ready yet: it still needs its database (next part).
+The site isn't ready yet: it still needs its database and passwords (next parts).
 
 ## Part 4: Add the free database (3 minutes)
 
@@ -43,31 +43,45 @@ The site isn't ready yet: it still needs its database (next part).
 3. Pick the **Free** plan and the region closest to most of your family. Name it `family-tree`.
 4. When asked which project to connect, choose **your project** and tick **Development, Preview and Production**. Click **Connect**.
 
-## Part 5: Choose your editors (3 minutes)
+## Part 5: Set your family password (2 minutes)
 
-Decide who may change the tree, and make up a **passcode for each person**: three words and a number works well, for example `sunny-garden-42`. Each passcode must be **at least 8 characters**, and capital letters matter.
+This is the one password everyone in the family types (once per device) to **look at** the tree. Without it, the site shows nothing: not to strangers, not to search engines, not to AI bots.
+
+Pick something **at least 8 characters** long that's easy to say over the phone but hard to guess, for example `sunflower-kite-73`. Capital letters matter. Don't use a password you use anywhere else.
 
 1. In your project, click **Settings → Environment Variables**.
 2. Fill in:
+   - **Key:** `FAMILY_PASSWORD`
+   - **Value:** your family password, e.g. `sunflower-kite-73` (no quotation marks)
+   - **Environments:** tick **Production** and **Preview**.
+   - Turn on **Sensitive** if you see it (it hides the password).
+3. Click **Save**.
+
+Write the password down somewhere safe. It is **only** stored in Vercel's settings, never on GitHub.
+
+## Part 6: Choose your editors (3 minutes)
+
+Editors are the people who may **change** the tree. Give each editor **their own passcode** (different from the family password): three words and a number works well, for example `apple-cloud-58`. Each must be **at least 8 characters**.
+
+1. Still in **Settings → Environment Variables**, add another one:
    - **Key:** `EDITORS`
    - **Value:** each person's name, `=`, and their passcode, with `;` between people. For example:
-     `Grandma=sunny-garden-42; Alex=river-stone-17; Priya=blue-lake-58`
-   - **Environments:** tick **Production** and **Preview**.
-   - Turn on **Sensitive** if you see it (it hides the passcodes).
-3. Click **Save**.
-4. Go to **Deployments**, click **⋯** on the top one, and choose **Redeploy**. Settings only take effect after a redeploy.
+     `Grandma=apple-cloud-58; Alex=paper-boat-31; Priya=green-tram-64`
+   - **Environments:** tick **Production** and **Preview**. Turn on **Sensitive**.
+2. Click **Save**.
+3. Go to **Deployments**, click **⋯** on the top one, and choose **Redeploy**. Settings only take effect after a redeploy.
 
 The name before `=` is shown as "Signed in as Grandma" and in the change history. Don't use `=` or `;` inside names or passcodes.
 
-## Part 6: Check one safety setting (1 minute)
+## Part 7: Check one safety setting (1 minute)
 
 **Settings → Deployment Protection** should say **Standard Protection** (the normal default).
-That keeps your main link open for family to view. Don't choose **All Deployments**, or everyone would be asked to log in to Vercel just to look.
+Your family password already keeps strangers out. Don't choose **All Deployments**, or every relative would also need a Vercel account just to look.
 
-## Part 7: Add your family
+## Part 8: Add your family
 
-1. Open your link, e.g. `https://our-family-k7q2m.vercel.app`. You'll see a **made-up sample family**.
-2. Click **✏️ Family editors: sign in to make changes** and type your passcode.
+1. Open your link, e.g. `https://our-family-k7q2m.vercel.app`, and type your **family password**. You'll see a **made-up sample family**.
+2. Click **✏️ Family editors: sign in to make changes** and type your **editor passcode**.
 3. Tap any person and use **Make changes**:
    - **✏️ Edit all details:** name, nickname, gender, date of birth, location, photo.
    - **➕ Add child** and **➕ Add husband/wife:** add people.
@@ -75,19 +89,23 @@ That keeps your main link open for family to view. Don't choose **All Deployment
    - **🗑 Remove from tree:** remove sample people you don't need.
 
    The quickest start: turn the sample people into your relatives with **Edit all details**, then add and remove as needed.
-4. Send the normal link to your family, and send each editor **their own passcode privately** (a call or a private message).
+4. **Share it with your family: send the link and the password separately.** For example, the link in a message and the password by phone call or in a different message. That way, if someone forwards or posts the link by mistake, the password doesn't go with it.
+5. Send each editor **their own passcode** privately too.
 
-## Part 8: Get new features
+Each device only needs the family password once. It's remembered for a year.
+
+## Part 9: Get new features
 
 When the template gets improvements:
 
 1. Open your fork on GitHub (`github.com/<your-name>/family-tree`).
 2. If it says "This branch is … commits behind", click **Sync fork → Update branch**.
-3. That's it. Vercel updates your website within a couple of minutes. **Your family data is not touched.**
+3. That's it. Vercel updates your website within a couple of minutes. **Your family data and passwords are not touched.**
 
+Occasionally a new feature needs a new setting. The maintainer will tell you, and the site explains what's missing.
 If GitHub says there are **conflicts**, it means files in your fork were changed by hand. If you didn't mean to keep those changes, choose **Discard commits** (this only affects code, never your family data). Otherwise ask the maintainer for help.
 
-## Part 9: Share an improvement (optional)
+## Part 10: Share an improvement (optional)
 
 Made the site better, for example clearer wording or a nicer colour? You can offer it to everyone:
 
@@ -96,23 +114,27 @@ Made the site better, for example clearer wording or a nicer colour? You can off
 3. Click **Contribute → Open pull request**, describe your change, and submit.
 
 The maintainer reviews it. Once accepted, everyone can get it with **Sync fork**.
-Pull requests only contain code. Your family's information is never included.
+Pull requests only contain code. Your family's information and passwords are never included.
 
 ---
 
 ## Everyday questions
 
-**Add or remove an editor, or change a passcode?** Edit `EDITORS` in **Settings → Environment Variables**, then **Deployments → ⋯ → Redeploy**.
+**Change the family password** (for example, if it was shared too widely)? Edit `FAMILY_PASSWORD` in **Settings → Environment Variables** (⋯ → **Edit**), then **Deployments → ⋯ → Redeploy**. Everyone is asked for the new password next time they open the site. Send it to them again (separately from the link).
+
+**Add or remove an editor, or change a passcode?** Edit `EDITORS` the same way, then Redeploy.
 Removing someone, or changing their passcode, signs them out on all their devices.
 
-**Someone typed a wrong passcode many times?** After 10 wrong tries in 15 minutes, sign-in pauses for 15 minutes.
+**Someone forgot the family password?** Tell them again. Nobody can look it up on the website itself.
 
-**Back up the family?** Open `https://<your-link>/api/family` and use **File → Save As**. Photos are kept in the database and aren't in that file.
+**Too many wrong tries?** After 10 wrong passwords or passcodes in 15 minutes, that place has to wait 15 minutes.
+
+**Back up the family?** While signed in, open `https://<your-link>/api/family` and use **File → Save As**. Photos are kept in the database and aren't in that file.
 
 **Who changed what?** **Storage → your Neon database → Open in Neon → SQL Editor**, then run:
 `SELECT at, editor, summary FROM changes ORDER BY at DESC LIMIT 50;`
 
 **Things to keep in mind**
-- Anyone with the link can see the tree. Don't post the link publicly.
+- Anyone who has **both** the link and the family password can see the tree. Keep them separate, and change the password if it spreads.
 - Think twice before adding exact birth dates of living children. Just the year works too.
 - Previews of new versions (special links Vercel makes for testing) use the **same** family data, so changes made there are real.

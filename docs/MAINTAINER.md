@@ -57,7 +57,9 @@ You need: a GitHub account, **git** (`git --version`; on a Mac it offers to inst
 
 ## B. Connect your current Vercel site to the repo (database unchanged)
 
-Your family's data lives in the **Neon database attached to your Vercel project**. Connecting a Git repository only changes **where the code comes from**. The project, its database, its settings (`EDITORS`, `SESSION_SECRET`, `DATABASE_URL`) and its link all stay the same.
+Your family's data lives in the **Neon database attached to your Vercel project**. Connecting a Git repository only changes **where the code comes from**. The project, its database, its settings (`FAMILY_PASSWORD`, `EDITORS`, `SESSION_SECRET`, `DATABASE_URL`) and its link all stay the same.
+
+**Before the first deploy from GitHub,** make sure your project has `FAMILY_PASSWORD` (Settings → Environment Variables, Production + Preview, Sensitive, 8+ characters). Without it the site shows an "Almost ready" page instead of your tree.
 
 1. **Back up first:** open `https://<your-site>.vercel.app/api/family` and **File → Save As** (`family-backup-YYYY-MM-DD.json`).
 2. In Vercel open **your existing project → Settings → Git → Connect Git Repository → GitHub**.
@@ -83,7 +85,10 @@ Your family's data lives in the **Neon database attached to your Vercel project*
    (Neon's Vercel integration can give previews their own copy of the database. Look for its preview-branch option if you want that.)
 3. Open a pull request and merge it into `main`. Your live site updates, the Easy kit rebuilds, and every family can get the change with **Sync fork**.
 
-**Keep changes safe for everyone:** don't rename or remove settings people rely on (`EDITORS`, `SESSION_SECRET`, `DATABASE_URL`), and keep the stored data format compatible. Families' existing data must keep working after they sync.
+**Keep changes safe for everyone:** don't rename or remove settings people rely on (`FAMILY_PASSWORD`, `EDITORS`, `SESSION_SECRET`, `DATABASE_URL`), and keep the stored data format compatible. Families' existing data must keep working after they sync.
+
+**If a change needs a new setting** (as the family password did), say so in the release notes **before** families sync. For example:
+"Before you click Sync fork, add `FAMILY_PASSWORD` in Vercel → Settings → Environment Variables (see Part 5 of the setup guide)." The site also tells them what's missing instead of breaking silently.
 
 ## D. Review improvements from others (pull requests)
 
@@ -125,10 +130,13 @@ How it works: the kit is the same `public/index.html` plus `easy-kit/easy-kit.js
 ## Security checklist (what's already built in)
 
 - Real family data is never in the repo. It lives only in each family's database. The sample family is made up.
-- Search engines are told not to list sites (`X-Robots-Tag` headers and a robots meta tag), and the site address isn't leaked to other sites (`Referrer-Policy: no-referrer`).
+- **Viewing needs the family password** (`FAMILY_PASSWORD`, set only in Vercel, 8+ characters). The page itself contains no family information. Names, dates and photos are only sent after the password is checked (or to signed-in editors). The password is remembered per device for a year in a signed, HttpOnly cookie, and changing it signs everyone out. Without the setting, the site refuses to show data ("Almost ready").
+- Search engines and AI crawlers are told to stay away (`robots.txt`, `X-Robots-Tag` headers, robots meta tag), and they can't get past the password anyway. The site address isn't leaked to other sites (`Referrer-Policy: no-referrer`). Photos are sent with `Cache-Control: private`.
 - Editing needs a personal passcode (8+ characters). Sign-in uses a signed, HttpOnly, Secure cookie, valid for 90 days and cancelled when the passcode changes.
-- 10 wrong passcodes in 15 minutes pauses sign-in for that place for 15 minutes.
+- 10 wrong family passwords, or 10 wrong editor passcodes, in 15 minutes pauses that kind of sign-in for that place for 15 minutes.
 - Saves must come from the site itself (cross-site requests are refused), and every change is validated and logged with the editor's name.
 - Photo uploads are limited to JPG/PNG/WebP, shrunk in the browser, and capped at 1.5 MB.
-- `.gitignore` keeps `.env` files, `.vercel/` and `node_modules/` out of Git. `.vercelignore` keeps docs and tools off the website.
+- `.gitignore` keeps `.env` files, `.vercel/` and `node_modules/` out of Git. `.vercelignore` keeps docs and tools off the website. Passwords and passcodes are never in the repo.
+- The website has no public photos folder: photos are added on the site and stored in the database behind the password.
+- The **Easy kit** has no password by design (it's a plain folder). Its START-HERE guide says so.
 - `SESSION_SECRET` is optional for families: if unset, the key is derived from the private database address.

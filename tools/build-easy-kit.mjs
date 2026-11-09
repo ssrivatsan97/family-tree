@@ -60,6 +60,7 @@ ${lines}
 write("START-HERE.html", read("easy-kit/START-HERE.html"));
 write(path.join("photos", "PUT_PHOTOS_HERE.txt"),
   "Optional: put pictures here (e.g. grandma.jpg). Photos added on the page are stored inside family-data.js instead.\n");
+write("robots.txt", read("public/robots.txt"));
 write("_headers", "/*\n  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex\n  Referrer-Policy: no-referrer\n");
 
 const built = new Date().toISOString().slice(0, 10);
