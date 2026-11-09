@@ -1,0 +1,6 @@
+# Files that are part of the GitHub repo but not the website
+docs/
+tools/
+easy-kit/
+.github/
+dist/

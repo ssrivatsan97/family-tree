@@ -1,0 +1,1 @@
+Put family photos here (e.g. joseph.jpg) and reference them in family-data.js as "photos/joseph.jpg".
