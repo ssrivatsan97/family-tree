@@ -6,7 +6,7 @@ A family tree that's easy for everyone, from 7 to 97: big text, big buttons, tap
 
 - **Private:** only people who know your **family password** can look. Strangers, search engines and AI bots see nothing. No accounts needed: family type the password once per device.
 - **Only the relatives you approve can make changes**, each with their own passcode.
-- Add children, husbands/wives, dates of birth, locations and photos; edit details; merge duplicates; remove people.
+- Each person shows their name, nickname, photo and gender (M/F). Add children and husbands/wives, edit details, merge duplicates, remove people.
 - Free to run, and no coding or command line needed to set up.
 
 ## Make your own

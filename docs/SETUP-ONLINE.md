@@ -83,7 +83,7 @@ Your family password already keeps strangers out. Don't choose **All Deployments
 1. Open your link, e.g. `https://our-family-k7q2m.vercel.app`, and type your **family password**. You'll see a **made-up sample family**.
 2. Click **✏️ Family editors: sign in to make changes** and type your **editor passcode**.
 3. Tap any person and use **Make changes**:
-   - **✏️ Edit all details:** name, nickname, gender, date of birth, location, photo.
+   - **✏️ Edit all details:** name, nickname, gender, photo.
    - **➕ Add child** and **➕ Add husband/wife:** add people.
    - **🔗 Merge with a duplicate:** if the same person was added twice.
    - **🗑 Remove from tree:** remove sample people you don't need.
@@ -136,5 +136,4 @@ Removing someone, or changing their passcode, signs them out on all their device
 
 **Things to keep in mind**
 - Anyone who has **both** the link and the family password can see the tree. Keep them separate, and change the password if it spreads.
-- Think twice before adding exact birth dates of living children. Just the year works too.
 - Previews of new versions (special links Vercel makes for testing) use the **same** family data, so changes made there are real.

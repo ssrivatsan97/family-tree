@@ -94,7 +94,7 @@
   .gen-label small { display: block; font-weight: 400; font-size: 15px; }
 
   .card {
-    position: absolute; width: 210px; height: 290px;
+    position: absolute; width: 210px; height: 250px;
     background: var(--panel); color: var(--ink);
     border: 3px solid var(--gen-border); border-top: 14px solid var(--gen-border);
     border-radius: var(--radius);
@@ -122,8 +122,6 @@
   .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .card .name { margin-top: 10px; font-size: 20px; font-weight: 700; line-height: 1.2; }
   .card .nick { font-size: 18px; color: var(--gen-ink); font-weight: 700; min-height: 1.3em; }
-  .card .dates { margin-top: auto; font-size: 20px; font-weight: 700; color: var(--ink-soft); }
-  .card.passed .avatar { filter: saturate(.6); }
 
   .pick-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow: auto; padding: 4px; }
   .pick-list label { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 12px;
@@ -332,7 +330,7 @@
   "use strict";
 
   // ---------- Layout sizes (in pixels, before zoom) ----------
-  const CARD_W = 210, CARD_H = 290;
+  const CARD_W = 210, CARD_H = 250;
   const SPOUSE_GAP = 44;   // space between partners
   const SIB_GAP = 40;      // space between brothers/sisters' branches
   const ROOT_GAP = 90;     // space between separate family branches
@@ -536,28 +534,10 @@
     return { y: +m[1], m: m[2] ? +m[2] : null, d: m[3] ? +m[3] : null };
   }
   function birthNum(p) { const d = parseDate(p.born); return d ? d.y * 10000 + (d.m || 0) * 100 + (d.d || 0) : 99999999; }
-  function isLiving(p) { return p.died === undefined || p.died === null || p.died === "" || String(p.died).toLowerCase() === "living"; }
   function initials(name) {
     if (name === "Name not known") return "?";
     return (name || "?").split(/\s+/).filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   }
-  // Age today for living people; age when they passed away otherwise.
-  // "died" may be a year (2015) or a full date ("2015-06-01") for an exact age.
-  function age(p) {
-    const b = parseDate(p.born); if (!b) return null;
-    let end;
-    if (isLiving(p)) {
-      const now = new Date();
-      end = { y: now.getFullYear(), m: now.getMonth() + 1, d: now.getDate() };
-    } else {
-      end = parseDate(p.died); if (!end) return null;
-    }
-    let a = end.y - b.y;
-    if (b.m && end.m && (end.m < b.m || (end.m === b.m && b.d && end.d && end.d < b.d))) a--;
-    return a;
-  }
-  function ageText(p) { const a = age(p); return a === null ? "Age: not known" : `Age: ${a}`; }
-  function datesBlock(p) { return el("div", "dates", ageText(p)); }
   function sexOf(p) {
     const g = String(p.gender || "").trim().toUpperCase();
     if (g === "M" || g === "MALE") return { letter: "M", word: "Male" };
@@ -569,12 +549,6 @@
     if (cls) e.className = cls;
     if (text !== undefined) e.textContent = text;
     return e;
-  }
-  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  function prettyDate(s) {
-    const d = parseDate(s); if (!d) return null;
-    if (!d.m) return String(d.y);
-    return d.d ? `${MONTHS[d.m - 1]} ${d.d}, ${d.y}` : `${MONTHS[d.m - 1]} ${d.y}`;
   }
   const photoPreview = new Map();   // photos picked on this page, shown until the page is closed
   function avatar(p) {
@@ -688,17 +662,16 @@
 
   function drawCard(p, depth, key = p.id) {
     const { x, y } = pos.get(key);
-    const c = el("button", `card g${depth % 6}` + (isLiving(p) ? "" : " passed"));
+    const c = el("button", `card g${depth % 6}`);
     c.type = "button";
     c.style.left = x + "px"; c.style.top = y + "px";
     const sx = sexOf(p);
     c.setAttribute("aria-label",
-      `${p.name}${p.nickname ? ", called " + p.nickname : ""}${sx ? ", " + sx.word : ""}, ${ageText(p).replace(":", "")}. Open details.`);
+      `${p.name}${p.nickname ? ", called " + p.nickname : ""}${sx ? ", " + sx.word : ""}. Open details.`);
     if (sx) { const b = el("div", "sex", sx.letter); b.setAttribute("aria-hidden", "true"); b.title = sx.word; c.appendChild(b); }
     c.appendChild(avatar(p));
     c.appendChild(el("div", "name", p.name || "Unknown"));
     c.appendChild(el("div", "nick", p.nickname ? `“${p.nickname}”` : ""));
-    c.appendChild(datesBlock(p));
     c.addEventListener("click", (e) => { if (dragMoved) { e.preventDefault(); return; } openPerson(p.id); });
     canvas.appendChild(c);
     if (key === p.id) cards.set(p.id, c);
@@ -909,11 +882,8 @@
 
     const facts = el("ul", "facts");
     const add = (k, v) => { const li = el("li"); li.appendChild(el("b", "", k)); li.append(v); facts.appendChild(li); };
-    add("Date of birth:", prettyDate(p.born) || "Not added yet");
-    add("Age:", (() => { const a = age(p); return a === null ? "Not known" : String(a); })());
     const sx = sexOf(p);
     if (sx) add("Gender:", sx.word);
-    add("Location:", p.location || "Not added yet");
     add("Generation:", `${(genOf.get(id) || 0) + 1}`);
     box.appendChild(facts);
 
@@ -1037,20 +1007,6 @@
     form.appendChild(seg);
     return () => (form.querySelector(`input[name=${name}]:checked`) || {}).value || "";
   }
-  // Date of birth: a full date, or just a year if that's all that is known.
-  function dobInputs(form, current) {
-    const d = parseDate(current);
-    const full = textInput(d && d.m && d.d ? `${d.y}-${String(d.m).padStart(2, "0")}-${String(d.d).padStart(2, "0")}` : "", "date");
-    field(form, "Date of birth", full);
-    const yr = textInput(d && !(d.m && d.d) ? d.y : "", "number");
-    yr.min = 1000; yr.max = new Date().getFullYear(); yr.placeholder = "e.g. 1920";
-    field(form, "…or only the year, if you don't know the exact date", yr);
-    return () => {
-      if (full.value) return full.value;
-      if (yr.value) return String(parseInt(yr.value, 10));
-      return "";
-    };
-  }
   function photoPicker(form, label) {
     const i = el("input"); i.type = "file"; i.accept = "image/*";
     field(form, label || "Photo (optional)", i, "Choose a picture from this phone or computer.");
@@ -1108,14 +1064,13 @@
     const isChild = kind === "child";
     const pg = (sexOf(p) || {}).letter;
     const title = isChild ? `Add a child of ${p.name}` : `Add ${p.name}'s ${addPartnerWord(p)}`;
-    let nameI, nickI, locI, diedI, getGender, getDob, getPhoto, getOther = () => null;
+    let nameI, nickI, getGender, getPhoto, getOther = () => null;
     const { form, finish } = formShell(id, title, async () => {
       const name = nameI.value.trim();
       if (!name && !nickI.value.trim()) return "Please type a name or a nickname.";
       const op = {
         op: "add", relation: isChild ? "child" : "partner", of: id,
-        person: { name, nickname: nickI.value.trim(), gender: getGender(), born: getDob(),
-                  location: locI.value.trim(), died: diedI.value.trim() || "living" },
+        person: { name, nickname: nickI.value.trim(), gender: getGender() },
       };
       if (isChild) {
         op.otherParent = getOther();
@@ -1133,9 +1088,6 @@
     nameI = field(form, "Full name", textInput(""));
     nickI = field(form, "Nickname (what the family calls them)", textInput(""), "Leave empty if none.");
     getGender = genderPicker(form, isChild ? "" : pg === "M" ? "F" : pg === "F" ? "M" : "");
-    getDob = dobInputs(form, "");
-    locI = field(form, "Location (town, state or country)", textInput(""));
-    diedI = field(form, "Year they passed away", textInput("", "number"), "Leave empty if they are living.");
     getPhoto = photoPicker(form);
     if (isChild) {
       const partners = [...p.spouses];
@@ -1148,40 +1100,14 @@
     }
     finish();
   }
-  function dobForm(id) {
-    const p = people.get(id);
-    let getDob;
-    const { form, finish } = formShell(id, `Date of birth for ${p.name}`, async () => {
-      const v = getDob();
-      if (!v) return "Please choose a date, or type the year.";
-      await send({ op: "update", id, fields: { born: v } });
-      refreshAndOpen(id, "✓ Date of birth saved.");
-    });
-    getDob = dobInputs(form, p.born);
-    finish();
-  }
-  function locationForm(id) {
-    const p = people.get(id);
-    let locI;
-    const { form, finish } = formShell(id, `Location for ${p.name}`, async () => {
-      const v = locI.value.trim();
-      await send({ op: "update", id, fields: { location: v } });
-      refreshAndOpen(id, v ? "✓ Location saved." : "✓ Location removed.");
-    });
-    locI = field(form, "Location (town, state or country)", textInput(p.location || ""), "For example: San Antonio, Texas");
-    finish();
-  }
   function detailsForm(id) {
     const p = people.get(id);
-    let nameI, nickI, locI, diedI, getGender, getDob, getPhoto;
+    let nameI, nickI, getGender, getPhoto;
     const { form, finish } = formShell(id, `Edit all details: ${p.name}`, async () => {
       const name = nameI.value.trim(), nick = nickI.value.trim();
       if (!name && !nick) return "Please type a name or a nickname.";
-      const died = diedI.value.trim();
-      if (died && !/^\d{4}(-\d{2}-\d{2})?$/.test(died)) return "Year they passed away should look like 1998 (or leave it empty).";
       await send({ op: "update", id, fields: {
-        name, nickname: nick, gender: getGender(), born: getDob(),
-        location: locI.value.trim(), died: died || "living" } });
+        name, nickname: nick, gender: getGender() } });
       let msg = "✓ All details saved.";
       const photo = getPhoto();
       if (photo) {
@@ -1193,12 +1119,6 @@
     nameI = field(form, "Full name", textInput(p.rawName), "Leave empty if not known.");
     nickI = field(form, "Nickname (what the family calls them)", textInput(p.rawNick), "Leave empty if none.");
     getGender = genderPicker(form, (sexOf(p) || {}).letter || "");
-    getDob = dobInputs(form, p.born);
-    form.lastChild.after(el("p", "hint", "To remove the date of birth, clear both boxes."));
-    locI = field(form, "Location (town, state or country)", textInput(p.location || ""), "For example: San Antonio, Texas");
-    diedI = field(form, "Year they passed away", textInput(isLiving(p) ? "" : String(p.died)),
-      "Leave empty if they are living. A full date like 2015-06-01 also works.");
-    diedI.placeholder = "e.g. 1998"; diedI.inputMode = "numeric";
     getPhoto = photoPicker(form, p.photo ? "Change photo" : "Add a photo");
     finish();
   }
@@ -1207,7 +1127,6 @@
     const parts = [];
     if (o.parents.length) parts.push("child of " + o.parents.map((x) => people.get(x).name).join(" & "));
     if (o.spouses.size) parts.push("married to " + [...o.spouses].map((x) => people.get(x).name).join(" & "));
-    if (o.location) parts.push(o.location);
     return parts.join(" · ") || "no family links yet";
   }
   function mergeForm(id) {
@@ -1262,7 +1181,7 @@
     ul.appendChild(el("li", "", `Parents after merging: ${names(parents)}`));
     ul.appendChild(el("li", "", `Husband / wife after merging: ${names(spouses)}`));
     ul.appendChild(el("li", "", `Children after merging: ${names(kids)}`));
-    ul.appendChild(el("li", "", "Blank details (date of birth, location, photo…) are filled in from the other entry."));
+    ul.appendChild(el("li", "", "Blank details (nickname, gender, photo…) are filled in from the other entry."));
     ul.appendChild(el("li", "", "This cannot be undone."));
     form.appendChild(ul);
     const { back } = finish();
